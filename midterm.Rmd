@@ -1,0 +1,84 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+BIS 581
+#load libraries
+```{r libs, echo=FALSE, message=FALSE, warning=FALSE}
+library(tidytext)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(ggraph)
+library(igraph)
+```
+
+```{r}
+VDI <- read.csv("vdi_serverlogs.csv", header=TRUE, stringsAsFactors = FALSE)
+
+apps <- read.csv("vdi_statsapps.csv", header=TRUE, stringsAsFactors = FALSE)
+```
+
+join the two together
+```{r}
+apps$VDI_ID <- as.integer(apps$VDI_ID)
+usage <-  VDI %>% inner_join(apps)
+#clean up
+
+```
+Answer the questions handed out on Blackboard
+
+Filter it by 2015 and VDI only
+
+```{r}
+str(usage)
+```
+
+```{r}
+usage$logon_DTS <- as.POSIXct(usage$logon_DTS, format = "%m/%d/%y %H:%M")
+```
+
+```{r}
+usage_2015 <- usage[format(usage$logon_DTS, "%Y") == "2015",]
+```
+
+
+how many users were on the system total
+```{r}
+users_2015 <- usage_2015$userid
+num_users_2015 <- length(users_2015)
+cat("The total number of users on the system in 2015 was:", num_users_2015)
+```
+
+• What is the average number of users per day
+```{r}
+Users_per_day <- usage_2015 %>%
+  mutate(date = as.Date(logon_DTS)) %>%
+  group_by(date) %>%
+  summarise(num_users =n())
+avg_users <- mean(Users_per_day$num_users)
+cat("The average number of users per day in 2015 was:", avg_users)
+
+```
+
+• What is the highest number of users per day, which day did that occur
+```{r}
+usage_2015 %>%
+  mutate(date = as.Date(logon_DTS)) %>%
+  group_by(date) %>%
+  summarise(num_users =n())
+
+max_users <- max(Users_per_day$num_users)
+max_date <- (Users_per_day[Users_per_day$num_users == max_users])
+
+cat("The highest numbers of users per day was", max_users, "Which happened on", max_date)
+```
+
+• Plot average CPU usage per month
+```{r}
+
+```
+
+
+
+NOTE: graduate students have extra for this, see Blackboard for details
