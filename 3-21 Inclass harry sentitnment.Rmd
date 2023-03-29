@@ -1,0 +1,100 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+```{r}
+library(tidyverse)
+library(tidytext)
+library(textdata)
+```
+\r = return
+```{r}
+harry <- read.delim("Harry.txt",header = FALSE,sep="\r")
+```
+rename column
+```{r}
+colnames(harry)[1] <- "txt"
+```
+
+split it by word for the column txt
+```{r}
+harrywords <- harry %>% unnest_tokens(word,txt)
+```
+
+Count 
+```{r}
+harrywords %>% count(word,sort=TRUE) %>% head()
+```
+get rid of stopwords
+```{r}
+harrywords <- harrywords %>% 
+  anti_join(stop_words)
+```
+
+```{r}
+harrywords %>% count(word,sort=TRUE) %>% head()
+```
+
+```{r}
+get_sentiments("afinn")
+```
+
+do inner join iwht bing, any words where it finds a match it will print.
+```{r}
+harrywords %>% inner_join(get_sentiments("afinn")) %>% head(10)
+```
+
+
+```{r}
+harrywords %>% inner_join(get_sentiments("bing")) %>%
+  count(word,sentiment,sort=TRUE) %>% 
+  group_by(sentiment) %>%
+  top_n(10) %>%
+  ungroup() %>%
+  mutate(word=reorder(word,n)) %>% 
+  ggplot(aes(word,n,fill=sentiment)) +
+  geom_col(show.legend=FALSE) +
+  scale_fill_manual(values=c("red2","green3")) +
+  facet_wrap(~sentiment,scales="free_y") +
+  ylim(0,5) +
+  coord_flip()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
